@@ -1,0 +1,155 @@
+
+<script setup>
+import { Link } from '@inertiajs/vue3';
+</script>
+
+<template>
+    <nav class="navbar">
+        <!-- Logo -->
+        <div class="logo">
+            <Link href="/" aria-label="Skate Awards home">
+                <img src="/public/Images/logo7.png" alt="Skate Awards" />
+                SKATE AWARDS
+            </Link>
+        </div>
+
+        <!-- Navigation links -->
+        <div class="nav-links">
+            <Link href="/vote">Home</Link>
+            <a href="/vote#categories">Categories</a>
+            <a href="/vote#about">About</a>
+        </div>
+
+        <div class="nav-actions">
+                <Link href="/login" class="login-link">LOG IN</Link>
+                <Link href="/register" class="register-link">
+                    JOIN THE AWARDS
+                </Link>
+        </div>
+    </nav>
+</template>
+
+<style scoped>
+.navbar {
+    width: 100%;
+    height: 90px;
+    min-height: 75px;
+    padding: 0 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    background: #111112;
+    border-bottom: 1px solid #ce9c5f;
+    /* position: fixed; */
+}
+
+.logo {
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #222222;
+}
+
+.logo a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #ce9c5f;
+}
+
+.logo img {
+    width: 55px;
+    height: auto;
+    display: block;
+
+    transform-origin: top center;
+    animation: hangingSwing 3s ease-in-out infinite;
+}
+
+@keyframes hangingSwing {
+    0% {
+        transform: rotate(-17deg);
+    }
+    50% {
+        transform: rotate(17deg);
+    }
+    100% {
+        transform: rotate(-17deg);
+    }
+}
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #ce9c5f;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.nav-links a:hover {
+    color: #fef0e3;
+}
+
+@media (max-width: 600px) {
+    .navbar {
+        padding: 15px 4%;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        gap: 22px;
+    }
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.login-link {
+    text-decoration: none;
+    color: #ce9c5f;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 11px 20px;
+    border: 1px solid #ce9c5f;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.login-link:hover {
+    background: #ce9c5f;
+    color: #111112;
+}
+
+.register-link {
+    text-decoration: none;
+    color: #111112;
+    background: #ce9c5f;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 13px 22px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.register-link:hover {
+    background: #fef0e3;
+    color: #111112;
+    transform: translateY(-2px);
+}
+</style>

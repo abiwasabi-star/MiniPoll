@@ -1,0 +1,15 @@
+/* Global styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #000;
+    background: #fff;
+}
+
+/* Make form elements inherit the global font */
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
