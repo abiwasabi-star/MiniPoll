@@ -36,7 +36,7 @@ class RegisterController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('vote');
+        return redirect()->route('home');
     }
 }
 

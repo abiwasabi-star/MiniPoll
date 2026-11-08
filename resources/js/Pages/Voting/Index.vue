@@ -3,12 +3,30 @@
 import PrivateNavbar from '../../Components/PrivateNavbar.vue';
 import Footer from '../../Components/Footer.vue';
 import SkaterCard from '../../Components/SkaterCard.vue'
+import SearchInput from '../../Components/SearchInput.vue';
+import { ref, computed } from 'vue';
 
-defineProps({
+const props = defineProps({
     categories: {
         type: Array,
         default: () => [],
     },
+});
+
+const search = ref('');
+
+const filteredCategories = computed(() => {
+    const term = search.value.trim().toLowerCase();
+
+    return props.categories
+        .map(category => ({
+            ...category,
+            skaters: category.skaters.filter(skater =>
+                skater.name.toLowerCase().includes(term) ||
+                category.name.toLowerCase().includes(term)
+            ),
+        }))
+        .filter(category => category.skaters.length > 0);
 });
 </script>
 
@@ -26,25 +44,35 @@ defineProps({
                     Celebrate your favourite skaters.
                     Every vote makes a difference.
                 </p>
+
+            
+                    <SearchInput
+                    v-model="search"
+                    placeholder="Search contestants or categories..."/>
+               
             </section>
 
             <section class="skaters-grid">
                 <template
-                    v-for="category in categories"
+                    v-for="category in filteredCategories"
                     :key="category.id"
                 >
                     <SkaterCard
                         v-for="skater in category.skaters"
                         :key="skater.id"
-                        :photo="skater.photo || '/images/skater-placeholder.jpg'"
+                        :id="skater.id"
+                        :photo="skater.photo"
                         :name="skater.name"
                         :category="category.name"
                     />
                 </template>
             </section>
 
-            <p v-if="categories.length === 0" class="empty-message">
-                No categories are available yet.
+            <p v-if="filteredCategories.length === 0" class="empty-message">
+                {{ search
+                ? `No contestants or categories match "${search}".`
+                : 'No categories are available yet.'
+                }}
             </p>
         </main>
 
@@ -62,6 +90,7 @@ defineProps({
 .voting-content {
     width: 100%;
     padding: 70px 7%;
+    max-width: none;
 }
 
 .voting-heading {
@@ -70,7 +99,7 @@ defineProps({
 }
 
 .eyebrow {
-    color: #9b6872;
+    color: rgb(128, 0, 73);
     font-size: 12px;
     letter-spacing: 3px;
     margin-bottom: 12px;
@@ -84,6 +113,7 @@ defineProps({
 .description {
     color: #888;
     font-size: 15px;
+    margin-bottom: 15px;
 }
 
 .skaters-grid {

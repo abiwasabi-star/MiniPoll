@@ -1,9 +1,10 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import AdminNavbar from '../../Components/AdminNavbar.vue';
 import Footer from '../../Components/Footer.vue';
+import SearchInput from '../../Components/SearchInput.vue';
 
 
 const props = defineProps({
@@ -11,6 +12,14 @@ const props = defineProps({
 });
 
 const page = usePage();
+const search = ref('');
+
+const filteredCategories = computed(() => {
+    return props.categories.filter(category =>
+        category.name.toLowerCase().includes(search.value.toLowerCase()) ||
+        category.slug.toLowerCase().includes(search.value.toLowerCase())
+    );
+});
 
 
 const showModal = ref(false);
@@ -96,21 +105,27 @@ function deleteCategory(category) {
         </div>
 
         <main class="admin-content">
-            <div class="section-heading">
-                <div>
                     <p class="eyebrow">ADMINISTRATION</p>
                     <h1>Categories</h1>
                     <p class="description">
-                        Manage your skating awards categories.
+                        Add, view and manage your award categories.
                     </p>
-                </div>
 
-                <button
-                    class="add-btn"
-                    @click="openCreateModal">
-                    + Add Category
-                </button>
-            </div>
+                    <SearchInput
+                      v-model="search"
+                      placeholder="Search categories..."/>
+
+                      <div class="section-heading">
+                        <div>
+                          <h2>Manage Categories</h2>
+                        </div>
+                      
+                        <button
+                          class="add-btn"
+                          @click="openCreateModal">
+                          + Add Category
+                        </button>
+                      </div>
 
             <!--categories list-->
             <section class="categories-section">
@@ -119,15 +134,15 @@ function deleteCategory(category) {
                     <h2>All Categories</h2>
 
                     <span>
-                        {{ categories.length }}
+                        {{ filteredCategories.length }}
                         categories
                     </span>
                 </div>
 
-                <div v-if="categories.length">
+                <div v-if="filteredCategories.length">
 
                     <div
-                        v-for="category in categories"
+                        v-for="category in filteredCategories"
                         :key="category.id"
                         class="category-card"
                     >
@@ -170,12 +185,15 @@ function deleteCategory(category) {
                 </div>
 
                 <div v-else class="empty-state">
-                    <h3>No categories yet</h3>
-                    <p>Add your first category to get started.</p>
+                    <h3>{{ search ? 'No matching categories' : 'No categories yet' }}</h3>
+
+                    <p>
+                      {{ search
+                      ? 'Try searching with a different name.'
+                      : 'Add your first category to get started.'}}
+                    </p>
                 </div>
-
             </section>
-
         </main>
 
         <!-- Add/Edit modal -->
@@ -274,21 +292,26 @@ function deleteCategory(category) {
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+    margin: 40px 0 25px;
 }
 
 .eyebrow {
-    color: #9b6872;
+    color: rgb(128, 0, 73);
     letter-spacing: 3px;
     font-size: 12px;
+    text-align: center;
 }
 
 h1 {
     font-size: 38px;
     margin: 12px 0;
+    text-align: center;
 }
 
 .description {
     color: #888;
+    text-align: center;
+    margin-bottom: 15px;
 }
 
 .add-btn,

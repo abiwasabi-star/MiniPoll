@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Skater;
+use App\Models\VotingSetting;
 use Inertia\Inertia;
 
 use Illuminate\Http\Request;
@@ -31,10 +32,13 @@ public function index()
         ")
         ->get();
 
+        $settings = VotingSetting::first(); //retrieves the first settings record.
+
     return Inertia::render('Admin/Dashboard', [
         'totalSkaters' => Skater::count(),
         'totalCategories' => Category::count(),
         'categories' => $categories,
+        'settings'=> $settings, //sends to vue dashboard
     ]);
 }
 
@@ -206,6 +210,19 @@ public function destroyCategory(Category $category)
         ->with('success', 'Category deleted successfully!');
 }
 
+public function updateVotingSettings(Request $request)
+{
+    $validated = $request->validate([
+        'voting_starts_at' => ['required', 'date'],
+        'voting_ends_at' => ['required', 'date', 'after:voting_starts_at'],
+    ]);
 
+    $settings = VotingSetting::firstOrFail();
+
+    $settings->update($validated);
+
+    return redirect()->route('admin.dashboard')
+        ->with('success', 'Voting schedule updated successfully!');
+}
 
 }

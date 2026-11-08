@@ -42,7 +42,7 @@ class LoginController extends Controller
         if (Auth::user()->is_admin) {
         return redirect()->intended(route('admin.dashboard'));
         }//checks if the currently authenticated user is an admin and redirects them to the admin dashboard
-        return redirect()->intended(route('vote'));
+        return redirect()->intended(route('home'));
     }
 
     /**

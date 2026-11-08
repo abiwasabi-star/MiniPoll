@@ -1,15 +1,47 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useForm, router, usePage, Link } from '@inertiajs/vue3';
 
 import AdminNavbar from '../../Components/AdminNavbar.vue';
 import Footer from '../../Components/Footer.vue';
+import SearchInput from '../../Components/SearchInput.vue';
 
-defineProps({
-    categories: Array,
+const props = defineProps({
+    categories: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const page = usePage();
+const search = ref('');
+
+const filteredCategories = computed(() => {
+    const term = search.value.trim().toLowerCase();
+
+    return props.categories
+        .map(category => {
+            const categoryMatches = category.name
+                .toLowerCase()
+                .includes(term);
+
+            const skaters = !term || categoryMatches
+                ? category.skaters
+                : category.skaters.filter(skater =>
+                    skater.name.toLowerCase().includes(term)
+                );
+
+            return {
+                ...category,
+                skaters,
+            };
+        })
+        .filter(category =>
+            !term ||
+            category.name.toLowerCase().includes(term) ||
+            category.skaters.length > 0
+        );
+});
 
 const showAddModal = ref(false);
 const showEditModal = ref(false);
@@ -115,6 +147,15 @@ function deleteContestant(skater) {
             {{ page.props.flash.error }}
         </div>
 
+        <p
+           v-if="filteredCategories.length === 0"
+            class="empty-message">
+           {{ search
+            ? `No contestants or categories match "${search}".`
+            : 'No categories have been added yet.'
+           }}
+         </p>
+
         <main class="admin-content">
             <p class="eyebrow">ADMINISTRATION</p>
             <h1>Contestants</h1>
@@ -123,10 +164,15 @@ function deleteContestant(skater) {
                 Add, view and manage your skating awards contestants.
             </p>
 
+            <SearchInput
+          v-model="search"
+          placeholder="Search contestants or categories..."/>
+
+            
+
             <div class="section-heading">
                 <div>
                     <h2>Manage Contestants</h2>
-                    <p>Add and manage your award contestants.</p>
                 </div>
 
                 <button class="add-btn" @click="showAddModal = true">
@@ -135,7 +181,7 @@ function deleteContestant(skater) {
             </div>
 
             <section
-                v-for="category in categories"
+                v-for="category in filteredCategories"
                 :key="category.id"
                 class="management-category"
             >
@@ -380,18 +426,22 @@ function deleteContestant(skater) {
 }
 
 .eyebrow {
-    color: #9b6872;
+    color: rgb(128, 0, 73);
     letter-spacing: 3px;
     font-size: 12px;
+    text-align: center;
 }
 
 h1 {
     font-size: 38px;
     margin: 12px 0;
+    text-align: center;
 }
 
 .description {
     color: #888;
+    text-align: center;
+    margin-bottom: 15px;
 }
 
 .section-heading {

@@ -24,11 +24,13 @@ Route::middleware('guest')->group(function () {
 
 //private routes
 Route::middleware('auth')->group(function () {
-    Route::get('/vote', [VotingController::class, 'index'])->name('vote');
+    Route::get('/home', [VotingController::class, 'index'])->name('home');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/vote', [VotingController::class, 'store'])->name('vote.store');
+    Route::get('/skaters/{skater}', [VotingController::class, 'show'])->name('skaters.show');
 });
 
 //admin routes //someone shud b logged in n an admin
@@ -39,9 +41,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/skaters/{skater}', [AdminController::class, 'destroy'])->name('skaters.destroy');
         Route::get('/contestants', [AdminController::class, 'contestants'])->name('contestants');
         Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
-        
+
         Route::post('/categories', [AdminController::class, 'storeCategory'])->name('categories.store');
         Route::put('/categories/{category}', [AdminController::class, 'updateCategory'])->name('categories.update');
         Route::delete('/categories/{category}', [AdminController::class, 'destroyCategory'])->name('categories.destroy');
+        Route::put('/voting-settings', [AdminController::class, 'updateVotingSettings'])->name('voting-settings.update');
     });
     
