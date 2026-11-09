@@ -18,6 +18,7 @@ const profileForm = useForm({
     name: props.user.name,
     email: props.user.email,
     photo: null,
+    remove_photo: false,
 });
 
 const passwordForm = useForm({
@@ -26,12 +27,16 @@ const passwordForm = useForm({
     password_confirmation: '',
 });
 
-const profilePhoto = computed(() =>
-    photoPreview.value ||
-    (props.user.profile_photo
-        ? `/storage/${props.user.profile_photo}`
-        : null)
-);
+const profilePhoto = computed(() => {
+    if (profileForm.remove_photo) {
+        return null;
+    }
+
+    return photoPreview.value ||
+        (props.user.profile_photo
+            ? `/storage/${props.user.profile_photo}`
+            : null);
+});
 
 watch(
     () => page.props.flash?.success,
@@ -53,8 +58,21 @@ function handlePhotoUpload(event) {
             URL.revokeObjectURL(photoPreview.value);
         }
         profileForm.photo = file;
+        profileForm.remove_photo = false;
+
         photoPreview.value = URL.createObjectURL(file);
     }
+}
+
+function removeProfilePhoto() {
+    if (photoPreview.value) {
+        URL.revokeObjectURL(photoPreview.value);
+    }
+
+    photoPreview.value = null;
+    profileForm.photo = null;
+    profileForm.remove_photo = true;
+    profileForm.clearErrors('photo');
 }
 
 function updateProfile() {
@@ -67,9 +85,15 @@ function updateProfile() {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
-                editingProfile.value = false;
-                photoPreview.value = null;
-                profileForm.photo = null;
+            editingProfile.value = false;
+
+            if (photoPreview.value) {
+            URL.revokeObjectURL(photoPreview.value);
+            }
+
+            photoPreview.value = null;
+            profileForm.photo = null;
+            profileForm.remove_photo = false;
             },
         });
 }
@@ -147,20 +171,30 @@ function logout() {
 
                         <div class="form-group">
                             <label>Profile Photo</label>
-                            <input
+                              <input
                                 type="file"
                                 accept=".jpg,.jpeg,.png,.webp"
-                                @change="handlePhotoUpload"
-                
-                            />
+                                @change="handlePhotoUpload"/>
+
+                            <div v-if="profilePhoto" class="photo-actions">
+                            <button
+                              type="button"
+                              class="remove-photo-button"
+                              @click="removeProfilePhoto">
+                            <i class="fa-solid fa-trash"></i>Remove Photo
+                            </button>
+                            </div>
+
+                            <small v-else class="input-hint">
+                            No profile photo selected. Your default avatar will be used.</small>
 
                             <small class="input-hint">
-                                Accepted formats: JPG, JPEG, PNG, WEBP. Maximum file size: 2MB.
+                             Accepted formats: JPG, JPEG, PNG, WEBP.
+                             Maximum file size: 2MB.
                             </small>
 
-                            
                             <small v-if="profileForm.errors.photo" class="error">
-                                {{ profileForm.errors.photo }}
+                            {{ profileForm.errors.photo }}
                             </small>
                         </div>
 
@@ -315,8 +349,8 @@ function logout() {
 
 
 
-                <!-- Voting history placeholder -->
-                <section class="profile-section">
+                <!--voting history placeholder/ for voters only-->
+                <section v-if="user.role?.toLowerCase() !== 'admin'" class="profile-section">
                     <div class="section-heading">
                         <div>
                             <h3>Voting History</h3>
@@ -419,6 +453,24 @@ function logout() {
 .profile-identity p {
     color: #777;
     font-size: 14px;
+}
+
+.photo-actions {
+    margin-top: 10px;
+}
+
+.remove-photo-button {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 0;
+}
+
+.remove-photo-button:hover {
+    color: #a71d2a;
 }
 
 .role-badge,

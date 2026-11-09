@@ -27,53 +27,74 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        /** @var User $user */
-            $user = Auth::user();
+    /** @var User $user */
+    $user = Auth::user();
 
-        $validated = $request->validate([
-            'name' => [
-                'required',
-                'string', 
-                'min:2',
-                'max:255',
-                'regex:/^[\pL\pM\s.\'-]+$/u',
-                ],
-            'email' => [
-                'required',
-                'email',
-                'max:255',
-                'unique:users,email,' . $user->id,
+    $validated = $request->validate([
+        'name' => [
+            'required',
+            'string',
+            'min:2',
+            'max:255',
+            'regex:/^[\pL\pM\s.\'-]+$/u',
+        ],
+        'email' => [
+            'required',
+            'email',
+            'max:255',
+            'unique:users,email,' . $user->id,
+        ],
+        'photo' => [
+            'nullable',
+            'image',
+            'mimes:jpg,jpeg,png,webp',
+            'max:2048',
+        ],
+        'remove_photo' => [
+            'nullable', 
+            'boolean'
             ],
-            'photo' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:2048',
-            ],
-        ]);
+    ]);
 
-        if ($request->hasFile('photo')) {
-            $oldPhoto = $user->profile_photo;
+    $oldPhoto = $user->profile_photo; //path of photo currently associated with the user
+    $newPhoto = null;
 
-            $validated['profile_photo'] = $request->file('photo')
-                ->store('profile-photos', 'public');
+    if ($request->boolean('remove_photo')) {
+    $validated['profile_photo'] = null;
+    }
 
-            if ($oldPhoto) {
-                Storage::disk('public')->delete($oldPhoto);
-            }
+    elseif ($request->hasFile('photo')) {//checks if user has uploaded a photo
+        $newPhoto = $request->file('photo')
+            ->store('profile-photos', 'public');
+
+        if (!$newPhoto) {//checks whether upload was succesful
+            return back()->withErrors([
+                'photo' => 'Unable to upload profile photo.',
+            ]);
         }
 
-        unset($validated['photo']);
+        $validated['profile_photo'] = $newPhoto;
+    }
 
-        $user->fill($validated);
+    unset($validated['photo'], $validated['remove_photo']);
 
-        if (!$user->isDirty()) { //checks if the user model has any changes if not...
-        return back()->with('success', 'No changes were made to your profile.');
-       }
+    $user->fill($validated);
 
-        $user->save();
+    if (!$user->isDirty()) {//checks whether any chnages were made
+        return back()->with(
+            'success',
+            'No changes were made to your profile.'
+        );
+    }
 
-        return back()->with('success', 'Profile updated successfully!');
+    $user->save();
+
+    //delete the old photo only after saving the new profile.
+    if ($oldPhoto && ($newPhoto || $request->boolean('remove_photo'))) {
+    Storage::disk('public')->delete($oldPhoto);
+    }
+
+    return back()->with('success', 'Profile updated successfully!');
     }
 
     public function updatePassword(Request $request)
