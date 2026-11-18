@@ -16,7 +16,6 @@ const photoPreview = ref(null);
 
 const profileForm = useForm({
     name: props.user.name,
-    email: props.user.email,
     photo: null,
     remove_photo: false,
 });
@@ -206,17 +205,6 @@ function logout() {
                             />
                             <small v-if="profileForm.errors.name" class="error">
                                 {{ profileForm.errors.name }}
-                            </small>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input
-                                v-model="profileForm.email"
-                                type="email"
-                            />
-                            <small v-if="profileForm.errors.email" class="error">
-                                {{ profileForm.errors.email }}
                             </small>
                         </div>
 
@@ -601,21 +589,15 @@ function logout() {
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
-
     background: none;
     border: none;
     padding: 5px;
-
-    color: #f3c1da;
+    color: rgb(128, 0, 73);
     font-size: 16px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.toggle-password:hover {
-    color: #914c6a;
 }
 
 .form-actions {
@@ -643,7 +625,7 @@ button:disabled {
 }
 
 .save-button {
-    background: #914c6a;
+    background: rgb(128, 0, 73);
     color: white;
 }
 

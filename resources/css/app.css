@@ -5,6 +5,11 @@ body {
     color: #000;
     background: #fff;
 }
+    /* @media (max-width: 650px) {
+    body {
+        padding-top: 110px;
+    }
+} */
 
 /* Make form elements inherit the global font */
 button,

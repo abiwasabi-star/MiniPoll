@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { useForm, router, usePage, Link } from '@inertiajs/vue3';
 
 import AdminNavbar from '../../Components/AdminNavbar.vue';
@@ -15,6 +15,37 @@ const props = defineProps({
 
 const page = usePage();
 const search = ref('');
+
+// Toast notification
+const toast = ref(null);
+let toastTimer = null;
+
+watch(
+    () => [page.props.flash?.success, page.props.flash?.error],
+    ([success, error]) => {
+        const message = success || error;
+
+        if (!message) return;
+
+        clearTimeout(toastTimer);
+
+        toast.value = {
+            message,
+            type: success ? 'success' : 'error',
+        };
+
+        toastTimer = setTimeout(() => {
+            if (toast.value?.message === message) {
+                toast.value = null;
+            }
+        }, 4000);
+    },
+    { immediate: true }
+);
+
+onBeforeUnmount(() => {
+    clearTimeout(toastTimer);
+});
 
 const filteredCategories = computed(() => {
     const term = search.value.trim().toLowerCase();
@@ -57,6 +88,7 @@ const editForm = useForm({
     name: '',
     category_id: '',
     photo: null,
+    remove_photo: false,
 });
 
 // Capture the selected contestant photo.
@@ -66,7 +98,19 @@ function handlePhotoUpload(event) {
 
 // Capture the replacement photo.
 function handleEditPhotoUpload(event) {
-    editForm.photo = event.target.files[0];
+    const file = event.target.files[0];
+
+    if (file) {
+        editForm.photo = file;
+        editForm.remove_photo = false;
+    }
+}
+
+//remove a contestant's photo
+function removeContestantPhoto() {
+    editForm.photo = null;
+    editForm.remove_photo = true;
+    editForm.clearErrors('photo');
 }
 
 // Open the edit modal and populate the form.
@@ -79,6 +123,7 @@ function openEditModal(skater) {
     editForm.name = skater.name;
     editForm.category_id = skater.category_id;
     editForm.photo = null;
+    editForm.remove_photo = false;
 
     showEditModal.value = true;
 }
@@ -100,7 +145,10 @@ function addContestant() {
 function updateContestant() {
     editForm
         .transform(data => ({
-            ...data,
+            name: data.name,
+            category_id: data.category_id,
+            remove_photo: data.remove_photo,
+            ...(data.photo ? { photo: data.photo } : {}),
             _method: 'put',
         }))
         .post(`/admin/skaters/${selectedSkater.value.id}`, {
@@ -133,19 +181,20 @@ function deleteContestant(skater) {
     <div class="admin-page">
         <AdminNavbar />
 
-        <div
-            v-if="page.props.flash?.success"
-            class="flash-message success"
-        >
-            {{ page.props.flash.success }}
-        </div>
-
-        <div
-            v-if="page.props.flash?.error"
-            class="flash-message error-message"
-        >
-            {{ page.props.flash.error }}
-        </div>
+        <Transition name="toast">
+            <div
+              v-if="toast"
+              class="toast-notification"
+              :class="toast.type"
+              >
+              <i
+              :class="toast.type === 'success'
+                ? 'fa-solid fa-circle-check'
+                : 'fa-solid fa-circle-exclamation'"
+              ></i>
+              <span>{{ toast.message }}</span>
+            </div>
+        </Transition>
 
         <p
            v-if="filteredCategories.length === 0"
@@ -195,11 +244,12 @@ function deleteContestant(skater) {
                 >
                     <div class="contestant-info">
                         <img
-                            :src="skater.photo
-                                ? `/storage/${skater.photo}`
-                                : '/images/skater-placeholder.jpg'"
-                            :alt="skater.name"
-                        >
+                            v-if="skater.photo"
+                            :src="`/storage/${skater.photo}`"
+                            :alt="skater.name">
+                        <div v-else class="contestant-photo-placeholder">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
 
                         <div>
                             <strong>{{ skater.name }}</strong>
@@ -364,15 +414,34 @@ function deleteContestant(skater) {
                             </p>
                         </div>
 
+                        
                         <div class="form-group">
-                            <label>Current Photo</label>
-
+                            <label>Contestant Photo</label>
+                            <div class="current-photo-container">
                             <img
-                                v-if="selectedSkater?.photo"
+                                v-if="selectedSkater?.photo && !editForm.remove_photo"
                                 :src="`/storage/${selectedSkater.photo}`"
                                 :alt="selectedSkater.name"
                                 class="current-photo"
                             >
+
+                            <div v-else class="current-photo placeholder-photo">
+                              <i class="fa-solid fa-user"></i>
+                            </div>
+                            </div>
+
+                            <button
+                                v-if="selectedSkater?.photo && !editForm.remove_photo"
+                                type="button"
+                                class="remove-photo-button"
+                                @click="removeContestantPhoto"
+                            >
+                            <i class="fa-solid fa-trash"></i>Remove Photo
+                            </button>
+
+                            <p v-if="editForm.remove_photo" class="input-hint">
+                            Photo will be removed when you save your changes.
+                            </p>
 
                             <label>Replace Photo (optional)</label>
 
@@ -383,9 +452,10 @@ function deleteContestant(skater) {
                             >
 
                             <p v-if="editForm.errors.photo" class="error">
-                                {{ editForm.errors.photo }}
+                            {{ editForm.errors.photo }}
                             </p>
                         </div>
+
 
                         <div class="modal-actions">
                             <button
@@ -417,7 +487,6 @@ function deleteContestant(skater) {
 .admin-page {
     min-height: 100vh;
     width: 100%;
-    font-family: cursive;
 }
 
 .admin-content {
@@ -469,12 +538,30 @@ h1 {
     cursor: pointer;
 }
 
+.contestant-photo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* background: #f3edf0; */
+    color: #800049;
+    font-size: 50px;
+}
+
 .management-category {
     margin-bottom: 30px;
 }
 
 .management-category h3 {
     margin-bottom: 12px;
+}
+
+.placeholder-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3edf0;
+    color: #800049;
+    font-size: 40px;
 }
 
 .management-row {
@@ -603,30 +690,100 @@ h1 {
     cursor: not-allowed;
 }
 
-.flash-message {
-    padding: 14px 20px;
-    margin: 20px 7% 0;
-    border-radius: 6px;
+/* Toast notification */
+.toast-notification {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 15px 20px;
+    max-width: 350px;
+
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+
     font-size: 14px;
 }
 
-.success {
-    background: #e8f5e9;
-    color: #276738;
+.toast-notification i {
+    font-size: 18px;
+    flex-shrink: 0;
 }
 
-.error-message {
+.toast-notification.success {
+    background: #e7f6ec;
+    color: #24743d;
+    border: 1px solid #b7e4c7;
+}
+
+.toast-notification.error {
     background: #fdebec;
     color: #a83242;
+    border: 1px solid #f5c2c7;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+    transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+    opacity: 0;
+    transform: translateY(-15px);
+}
+
+@media (max-width: 600px) {
+    .toast-notification {
+        left: 15px;
+        right: 15px;
+        top: 15px;
+        max-width: none;
+    }
+}
+
+.current-photo-container {
+    margin: 10px 0;
 }
 
 .current-photo {
-    display: block;
-    width: 90px;
-    height: 90px;
+    width: 110px;
+    height: 110px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.placeholder-photo {
+    background: #f3f3f3;
+    object-fit: contain;
+}
+
+.remove-photo-button {
+    display: block;
+    background: none;
+    color: #dc3545;
+    border: none;
+    padding: 5px 0;
     margin-bottom: 15px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.remove-photo-button:hover {
+    color: #a71d2a;
+}
+
+.input-hint {
+    color: #777;
+    font-size: 12px;
+    margin: 5px 0 12px;
 }
 
 @media (max-width: 600px) {

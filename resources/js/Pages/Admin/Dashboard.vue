@@ -163,7 +163,6 @@ const page = usePage(); //accesses the current page's props and data
 .admin-page {
     min-height: 100vh;
     width: 100%;
-    font-family: cursive;
 }
 
 .admin-content {

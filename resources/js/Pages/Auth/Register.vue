@@ -151,7 +151,6 @@ function submit() {
     min-height: 100vh;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    font-family: Arial, sans-serif;
     background: #fff;
     color: black;
 }
@@ -161,7 +160,8 @@ function submit() {
     align-items: center;
     padding: 70px;
     background: #FFF5E7;
-    color: black;
+    color: rgb(128, 0, 73);
+
 }
 
 .brand-content {
@@ -289,7 +289,8 @@ function submit() {
 }
 
 .form-group input:focus {
-    border-color: rgb(243, 118, 139);
+    border-color: rgb(128, 0, 73);
+
 }
 
 .password-wrapper {
@@ -304,7 +305,7 @@ function submit() {
     background: none;
     border: none;
     cursor: pointer;
-    color: #f0cb98;
+    color: rgb(128, 0, 73);
     font-size: 16px;
     position: absolute;
     right: 12px;
@@ -347,7 +348,7 @@ function submit() {
 }
 
 .auth-switch a {
-    color: rgb(243, 118, 139);
+    color: rgb(128, 0, 73);
     font-weight: bold;
     text-decoration: none;
 }

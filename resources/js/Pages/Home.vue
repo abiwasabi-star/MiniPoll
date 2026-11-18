@@ -1,8 +1,8 @@
-
 <script setup>
 import { Link } from '@inertiajs/vue3';
 import Footer from '@/Components/Footer.vue';
 import PublicNavbar from '@/Components/PublicNavbar.vue';
+import StaticCategories from '../Components/StaticCategories.vue';
 // import Button from '@/Components/Button.vue';
 </script>
 
@@ -39,7 +39,7 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
 
                 <div class="hero-actions">
                     <Link href="/register" class="primary-button">
-                        CAST YOUR VOTE <span>↗</span>
+                        CAST YOUR VOTE
                     </Link>
 
                     <a href="#categories" class="secondary-button">
@@ -55,14 +55,15 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
               </div>
               <div class="scroll-indicator">
                  <span>SCROLL TO EXPLORE</span>
-                 <span>↓</span>
               </div>
             </div>
 
         </section>
 
              <!-- CATEGORIES -->
-              <section></section>
+              <section>
+                <StaticCategories/>
+              </section>
 
         <!-- ABOUT -->
         <section class="about-section" id="about">
@@ -77,7 +78,7 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
             </h2>
 
             <Link href="/register" class="primary-button">
-                BE PART OF IT <span>↗</span>
+                BE PART OF IT
             </Link>
         </section>
 
@@ -112,20 +113,24 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     margin: 0;
     padding: 0;
     position: relative;
-
-    background:
-        linear-gradient(
-            rgba(17, 17, 18, 0.45),
-            rgba(17, 17, 18, 0.75)
-        ),
-        url('/images/backg.jpg') center top / cover no-repeat fixed;
-
-    color: #f2eeee;
-    font-family: cursive, Arial, sans-serif;
+    isolation: isolate;
+    color: black;
+    background: linear-gradient(
+        to right,
+        #FFF5E7 0%,
+        #FFF5E7 35%,
+        #FFF0E4 65%,
+        #FFF0E4 100%
+    );
 }
+.home-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
 
-
-
+    
+}
 /* HERO */
 
 .hero {
@@ -147,14 +152,6 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     position: absolute;
     inset: 0;
     z-index: -1;
-    background:
-        linear-gradient(90deg,
-            rgba(13, 13, 14, 0.96) 0%,
-            rgba(13, 13, 14, 0.82) 36%,
-            rgba(13, 13, 14, 0.25) 75%,
-            rgba(13, 13, 14, 0.5) 100%
-        ),
-        linear-gradient(0deg, #111112 0%, transparent 25%);
 }
 
 .hero-content {
@@ -166,7 +163,7 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #ce9c5f;
+    color: rgb(128, 0, 73);
     font-size: 10px;
     font-weight: bold;
     letter-spacing: 2.5px;
@@ -176,7 +173,7 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     display: inline-block;
     width: 25px;
     height: 2px;
-    background: #ce9c5f;
+    background: rgb(128, 0, 73);
 }
 
 .hero h1 {
@@ -188,12 +185,13 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     font-weight: 900;
 }
 .hero h1 span {
-    color: #ce9c5f;
+    color: rgb(128, 0, 73);
+
 }
 
 .hero-description {
     max-width: 430px;
-    color: #c2bcbc;
+    color: black;
     line-height: 1.8;
     font-size: 14px;
 }
@@ -209,35 +207,23 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
 .primary-button {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 25px;
-    padding: 16px 22px;
-
-    background: rgba(206, 156, 95, 0.08);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    color: #ce9c5f;
+    color: rgb(128, 0, 73);
     text-decoration: none;
-    font-size: 11px;
-    font-weight: bold;
+    font-size: 10px;
+    font-weight: 600;
     letter-spacing: 1px;
 
-    border: 1px solid rgba(206, 156, 95, 0.55);
-    border-radius: 50px;
+    padding: 10px 4px;
+    border-bottom: 1px solid black;
 
-    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12),
-                0 4px 15px rgba(0, 0, 0, 0.12);
 
     transition: all 0.3s ease;
+   
 }
 
 .primary-button:hover {
-    background: rgba(206, 156, 95, 0.2);
-    border-color: #ce9c5f;
     transform: translateY(-4px);
-    box-shadow: 0 8px 22px rgba(206, 156, 95, 0.2),
-                inset 0 1px 2px rgba(255, 255, 255, 0.2);
+    
 }
 
 /* SECONDARY BUTTON */
@@ -245,21 +231,20 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
 .secondary-button {
     display: inline-flex;
     align-items: center;
-    color: #e3dddd;
+    color: black;
     text-decoration: none;
     font-size: 10px;
     font-weight: 600;
     letter-spacing: 1px;
 
     padding: 10px 4px;
-    border-bottom: 1px solid rgba(206, 156, 95, 0.7);
+    border-bottom: 1px solid rgb(128, 0, 73);
+
 
     transition: all 0.3s ease;
 }
 
 .secondary-button:hover {
-    color: #ce9c5f;
-    border-bottom-color: #ce9c5f;
     transform: translateY(-3px);
     text-shadow: 0 0 10px rgba(206, 156, 95, 0.3);
 }
@@ -282,7 +267,7 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     pointer-events: none;
 }
 
-.hero-footer {
+/* .hero-footer {
     position: absolute;
     bottom: 35px;
     left: 10%;
@@ -292,18 +277,19 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     justify-content: space-between;
     align-items: center;
     gap: 20px;
-}
+} */
 
 .hero-bottom {
     display: flex;
     align-items: center;
-    gap: 35px;
+    gap: 50px;
     color: rgb(128, 0, 73);
     font-size: 9px;
     letter-spacing: 2px;
 }
 
 .scroll-indicator {
+    padding-top: 80px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -318,21 +304,6 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     color: rgb(128, 0, 73);
     font-size: 15px;
 }
-
-/* CATEGORIES */
-
-/* .categories-section {
-    padding: 110px 10%;
-    background: transparent;
-} */
-
-/* .section-heading {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 30px;
-    margin-bottom: 45px;
-} */
 
 .section-heading h2 {
     font-size: clamp(35px, 5vw, 50px);
@@ -350,9 +321,7 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
     font-size: 13px;
     line-height: 1.8;
 }
-
 /* ABOUT */
-
 .about-section {
     padding: 110px 10%;
     text-align: center;
@@ -369,7 +338,8 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
 }
 .about-section h2 span {
     display: block;
-    color: #ce9c5f;
+    color: rgb(128, 0, 73);
+
 }
 
 /* RESPONSIVE */
@@ -427,15 +397,6 @@ import PublicNavbar from '@/Components/PublicNavbar.vue';
 
     .hero-image {
         background-position: 58% center;
-    }
-
-    .hero-overlay {
-        background:
-            linear-gradient(90deg,
-                rgba(13, 13, 14, 0.91),
-                rgba(13, 13, 14, 0.45)
-            ),
-            linear-gradient(0deg, #111112 0%, transparent 35%);
     }
 
     .hero h1 {

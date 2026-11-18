@@ -125,7 +125,6 @@ function submit() {
     min-height: 100vh;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    font-family: cursive;
     background: white;
     color: black;
 }
@@ -141,7 +140,8 @@ function submit() {
         #FFF0E4 65%,
         #FFF0E4 100%
     );
-    color: black;
+    color: rgb(128, 0, 73);
+
 }
 
 .brand-label,
@@ -258,7 +258,8 @@ function submit() {
 }
 
 .form-group input:focus {
-    border-color: rgb(243, 118, 139);
+    border-color:rgb(128, 0, 73);
+
 }
 
 .password-heading {
@@ -269,7 +270,7 @@ function submit() {
 
 .forgot-link {
     font-size: 12px;
-    color: rgb(243, 118, 139);
+    color: rgb(128, 0, 73);
     text-decoration: none;
     margin-bottom: 8px;
 }
@@ -286,7 +287,7 @@ function submit() {
     background: none;
     border: none;
     cursor: pointer;
-    color: #f0cb98;
+    color: rgb(128, 0, 73);
     font-size: 16px;
     position: absolute;
     right: 12px;
@@ -311,7 +312,8 @@ function submit() {
 }
 
 .remember-option input {
-        accent-color: #f0cb98;
+        accent-color: rgb(128, 0, 73);
+
 
 }
 .submit-button {
@@ -344,7 +346,7 @@ function submit() {
 }
 
 .auth-switch a {
-    color: rgb(243, 118, 139);
+    color: rgb(128, 0, 73);
     font-weight: bold;
     text-decoration: none;
 }

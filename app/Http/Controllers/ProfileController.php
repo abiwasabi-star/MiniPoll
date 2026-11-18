@@ -38,12 +38,6 @@ class ProfileController extends Controller
             'max:255',
             'regex:/^[\pL\pM\s.\'-]+$/u',
         ],
-        'email' => [
-            'required',
-            'email',
-            'max:255',
-            'unique:users,email,' . $user->id,
-        ],
         'photo' => [
             'nullable',
             'image',
@@ -80,7 +74,7 @@ class ProfileController extends Controller
 
     $user->fill($validated);
 
-    if (!$user->isDirty()) {//checks whether any chnages were made
+    if (!$user->isDirty()) {//checks whether any changes were made
         return back()->with(
             'success',
             'No changes were made to your profile.'

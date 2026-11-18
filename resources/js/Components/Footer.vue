@@ -43,7 +43,6 @@ const year = new Date().getFullYear();
 
     border-top: 1px solid #ffffff14;
     background: black;
-    font-family: cursive;
 }
 
 .footer-column {
@@ -56,7 +55,7 @@ const year = new Date().getFullYear();
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: #ce9c5f;
+    color: rgb(128, 0, 73);
 }
 
 .footer-logo img {
@@ -90,7 +89,7 @@ const year = new Date().getFullYear();
 
 .footer-tagline p,
 .footer-copyright span {
-    color:#ce9c5f;
+    color: rgb(128, 0, 73);
     font-size: 9px;
     letter-spacing: 1.2px;
     line-height: 1.7;

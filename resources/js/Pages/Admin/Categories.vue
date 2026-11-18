@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { useForm, router, usePage } from '@inertiajs/vue3';
 import { route } from 'ziggy-js';
 import AdminNavbar from '../../Components/AdminNavbar.vue';
@@ -13,6 +13,37 @@ const props = defineProps({
 
 const page = usePage();
 const search = ref('');
+
+//toast notification
+const toast = ref(null);
+let toastTimer = null;
+
+watch(
+    () => [page.props.flash?.success, page.props.flash?.error],
+    ([success, error]) => {
+        const message = success || error;
+
+        if (!message) return;
+
+        clearTimeout(toastTimer);
+
+        toast.value = {
+            message,
+            type: success ? 'success' : 'error',
+        };
+
+        toastTimer = setTimeout(() => {
+            if (toast.value?.message === message) {
+                toast.value = null;
+            }
+        }, 4000);
+    },
+    { immediate: true }
+);
+
+onBeforeUnmount(() => {
+    clearTimeout(toastTimer);
+});
 
 const filteredCategories = computed(() => {
     return props.categories.filter(category =>
@@ -91,18 +122,21 @@ function deleteCategory(category) {
 
 <div class="categories-page">
 <AdminNavbar/>
-<!--flash messages-->
-        <div
-            v-if="page.props.flash?.success"
-            class="flash-message success">
-            {{ page.props.flash.success }}
-        </div>
+        <!-- Toast notification -->
+        <Transition name="toast">
+            <div
+              v-if="toast"
+              class="toast-notification"
+              :class="toast.type">
+            <i
+            :class="toast.type === 'success'
+                ? 'fa-solid fa-circle-check'
+                : 'fa-solid fa-circle-exclamation'"
+            ></i>
 
-        <div
-            v-if="page.props.flash?.error"
-            class="flash-message error-message">
-            {{ page.props.flash.error }}
-        </div>
+            <span>{{ toast.message }}</span>
+            </div>
+        </Transition>
 
         <main class="admin-content">
                     <p class="eyebrow">ADMINISTRATION</p>
@@ -278,7 +312,6 @@ function deleteCategory(category) {
 
 <style scoped>
 .categories-page{
-    font-family: cursive;
     min-height: 100vh;
     width: 100%;
 }
@@ -418,21 +451,56 @@ h1 {
     margin-bottom: 10px;
 }
 
-.flash-message {
-    padding: 14px 20px;
-    margin: 20px 7% 0;
-    border-radius: 6px;
+.toast-notification {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    max-width: 350px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
     font-size: 14px;
 }
 
-.success {
-    background: #e8f5e9;
-    color: #276738;
+.toast-notification i {
+    font-size: 18px;
+    flex-shrink: 0;
 }
 
-.error-message {
+.toast-notification.success {
+    background: #e7f6ec;
+    color: #24743d;
+    border: 1px solid #b7e4c7;
+}
+
+.toast-notification.error {
     background: #fdebec;
     color: #a83242;
+    border: 1px solid #f5c2c7;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+    transition: all 0.3s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+    opacity: 0;
+    transform: translateY(-15px);
+}
+
+@media (max-width: 600px) {
+    .toast-notification {
+        left: 15px;
+        right: 15px;
+        top: 15px;
+        max-width: none;
+    }
 }
 
 .modal-overlay {

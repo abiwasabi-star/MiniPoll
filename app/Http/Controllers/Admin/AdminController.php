@@ -20,7 +20,8 @@ public function index()
     $categories = Category::withCount('skaters')
         ->with([
             'skaters' => function ($query) {
-                $query->withCount('votes');
+                $query->withCount('votes')
+                ->orderByDesc('votes_count');
             }
         ])
         ->orderByRaw("
@@ -61,7 +62,7 @@ public function store(Request $request)
     Skater::create($validated);
 
     //returns to dashboard with a success message
-    return redirect()->route('admin.dashboard')
+    return redirect()->route('admin.contestants')
         ->with('success', 'Contestant added successfully!');
 }
 
@@ -70,42 +71,54 @@ public function update(Request $request, Skater $skater)
     $validated = $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'category_id' => ['required', 'exists:categories,id'],
-        'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        'photo' => ['sometimes', 'required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        'remove_photo' => ['nullable', 'boolean'],
     ]);
 
-    // If a new photo has been uploaded
+    //keep the current photo unless a new one is uploaded
     $oldPhoto = $skater->photo;
 
-    if ($request->hasFile('photo')) {
-        $validated['photo'] = $request->file('photo')
-        ->store('skaters', 'public');
+    //update name and category
+    $skater->name = $validated['name'];
+    $skater->category_id = $validated['category_id'];
 
-        //delete the previous photo
-        if ($skater->photo) {
-            Storage::disk('public')->delete($skater->photo);
+    //photo removal takes priority
+    if ($request->boolean('remove_photo')) {
+        $skater->photo = null;
+    }
+
+    //only replace the photo when a new file is uploaded
+    elseif ($request->hasFile('photo')) {
+        $newPhoto = $request->file('photo')->store('skaters', 'public');
+
+        if (!$newPhoto) {
+            return back()->withErrors([
+                'photo' => 'Unable to upload contestant photo.',
+            ]);
         }
 
-        //store the new photo
-        $validated['photo'] = $request->file('photo')
-            ->store('skaters', 'public');
+        $skater->photo = $newPhoto;
     }
 
-    //update the contestant
-    $skater->update($validated);
+    //save the db changes
+    $skater->save();
 
-    if (isset($validated['photo']) && $oldPhoto) {
+    //only delete old photo after successfully saving the new one
+    if (
+        $oldPhoto &&
+        ($request->boolean('remove_photo') || $request->hasFile('photo'))
+    ) {
         Storage::disk('public')->delete($oldPhoto);
     }
-
-    return redirect()->route('admin.dashboard')
-        ->with('success', 'Contestant updated successfully!');
+    return redirect()->route('admin.contestants')
+        ->with('success', 'Contestant updated successfully!');    
 }
 
 public function destroy(Skater $skater)
 {
     //first check whether the contestant has votes
     if ($skater->votes()->exists()) {
-        return redirect()->route('admin.dashboard')
+        return redirect()->route('admin.contestants')
             ->with('error', 'This contestant cannot be deleted because they have received votes.');
     }
 
@@ -117,11 +130,11 @@ public function destroy(Skater $skater)
     // Delete the contestant from the database
     $skater->delete();
 
-    return redirect()->route('admin.dashboard')
+    return redirect()->route('admin.contestants')
         ->with('success', 'Contestant deleted successfully!');
 }
 
-public function contestants()
+public function contestants() //retrieve all contestants with votes
 {
     $categories = Category::with([
         'skaters' => function ($query) {
