@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Illuminate\Auth\Events\Registered;
 
 class RegisterController extends Controller
 {
@@ -24,20 +25,20 @@ class RegisterController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Password::min(8)],
-        ]);
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
+        'password' => ['required', 'confirmed', Password::min(8)],
+    ]);
 
-        $user = User::create($validated);
+    $user = User::create($validated);
 
-        Auth::login($user);
+    event(new Registered($user));
 
-        $request->session()->regenerate();
+    Auth::login($user);
 
-        return redirect()->route('home');
+    $request->session()->regenerate();
+
+    return redirect()->route('verification.notice');
     }
 }
-
-//

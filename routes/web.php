@@ -7,6 +7,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\VotingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 
 
 //public page
@@ -26,10 +28,34 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'store']);
 });
 
-//private routes
-Route::middleware(['auth',\App\Http\Middleware\PreventBackHistory::class,])->group(function () {
+// Email verification routes
+Route::middleware('auth')->group(function () {
+
+    // Display verification notice
+    Route::get('/email/verify', function () {return Inertia::render('Auth/VerifyEmail');
+    })->name('verification.notice');
+
+    // Handle verification link
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('home');
+    })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+
+    // Resend verification email
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('status', 'verification-link-sent');
+    })->middleware('throttle:6,1')->name('verification.send');
+
+});
+
+// Logout - authenticated users, verified or not
+Route::middleware(['auth', \App\Http\Middleware\PreventBackHistory::class])
+    ->post('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+//private routes authenticated  ANd verified users
+Route::middleware(['auth','verified', \App\Http\Middleware\PreventBackHistory::class,])->group(function () {
     Route::get('/home', [VotingController::class, 'index'])->name('home');
-    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
@@ -38,7 +64,7 @@ Route::middleware(['auth',\App\Http\Middleware\PreventBackHistory::class,])->gro
 });
 
 //admin routes //someone shud b logged in n an admin
-Route::middleware(['auth', 'admin',\App\Http\Middleware\PreventBackHistory::class,])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth','verified', 'admin',\App\Http\Middleware\PreventBackHistory::class,])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         Route::post('/skaters', [AdminController::class, 'store'])->name('skaters.store');
         Route::put('/skaters/{skater}', [AdminController::class, 'update'])->name('skaters.update');

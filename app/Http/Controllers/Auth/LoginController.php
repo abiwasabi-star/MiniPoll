@@ -39,6 +39,11 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user->hasVerifiedEmail()) {
+        return redirect()->route('verification.notice');
+        }
         if (Auth::user()->is_admin) {
         return redirect()->intended(route('admin.dashboard'));
         }//checks if the currently authenticated user is an admin and redirects them to the admin dashboard
