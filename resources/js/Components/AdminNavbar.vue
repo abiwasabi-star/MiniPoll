@@ -58,7 +58,8 @@ import { Link } from '@inertiajs/vue3';
     align-items: center;
     gap: 12px;
     text-decoration: none;
-    color: #ce9c5f;
+    color: rgb(128, 0, 73);
+
 }
 .logo img {
     width: 55px;
@@ -87,7 +88,7 @@ import { Link } from '@inertiajs/vue3';
 }
 .nav-links a {
     text-decoration: none;
-    color: #ce9c5f;
+    color: rgb(128, 0, 73);
     font-size: 14px;
     font-weight: 500;
     transition: color 0.2s;
@@ -115,16 +116,12 @@ import { Link } from '@inertiajs/vue3';
     justify-content: center;
     width: 42px;
     height: 42px;
-    border: 1px solid #ce9c5f;
+    border: 1px solid rgb(128, 0, 73);
     border-radius: 50%;
-    color: #ce9c5f;
+    color: rgb(128, 0, 73);
     font-size: 18px;
     text-decoration: none;
     transition: all 0.3s ease;
-}
-.profile-icon:hover {
-    background: #ce9c5f;
-    color: #111112;
 }
 .logout-btn {
     width: 100%;

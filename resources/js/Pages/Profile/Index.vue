@@ -4,6 +4,10 @@ import { useForm, router, usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
     user: Object,
+    votingHistory: {
+        type: Array,
+        default: () => [],
+    },
 });
 
 const page = usePage();
@@ -105,7 +109,11 @@ function updatePassword() {
 }
 
 function logout() {
-    router.post('/logout');
+    router.post('/logout', {
+        onSuccess: () => {
+            window.location.replace('/login');
+        }
+    });
 }
 </script>
 
@@ -344,15 +352,30 @@ function logout() {
                             <h3>Voting History</h3>
                             <p>Keep track of your participation in competitions.</p>
                         </div>
-
-                        <span class="coming-soon">Coming Soon</span>
+                    </div>
+                         <!-- already voted -->
+                    <div v-if="votingHistory.length" class="voting-history">
+                        <div
+                           v-for="vote in votingHistory"
+                           :key="vote.id"
+                           class="history-item">
+                        <div class="history-details">
+                            <h4>{{ vote.category?.name }}</h4>
+                            <p>Voted for: <strong>{{ vote.skater?.name }}</strong></p>
+                            <small>
+                                {{ new Date(vote.created_at).toLocaleString() }}
+                            </small>
+                        </div>
+                        <i class="fa-solid fa-circle-check vote-check"></i>
+                        </div>
                     </div>
 
-                    <div class="history-placeholder">
+                    <!-- not voted yet -->
+                    <div v-else class="history-placeholder">
                         <i class="fa-solid fa-clock-rotate-left"></i>
-                        <h4>Your voting activity will appear here.</h4>
-                        <p>You'll be able to view your previous votes and participation.</p>
-                    </div>
+                        <h4>No voting activity yet.</h4>
+                        <p>Your previous votes will appear here once you participate.</p>
+                    </div>      
                 </section>
 
                 <!-- Logout -->
@@ -649,29 +672,42 @@ button:disabled {
     border-radius: 6px;
 }
 
-.history-placeholder {
-    padding: 35px 15px;
-    text-align: center;
+.voting-history {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px;
     background: #fafafa;
-    border: 1px dashed #ddd;
+    border: 1px solid #eee;
     border-radius: 8px;
 }
 
-.history-placeholder i {
-    font-size: 28px;
-    color: #999;
-    margin-bottom: 12px;
+.history-details h4 {
+    margin-bottom: 7px;
+    font-size: 15px;
 }
 
-.history-placeholder h4 {
-    margin-bottom: 8px;
+.history-details p {
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #555;
 }
 
-.history-placeholder p {
+.history-details small {
     color: #888;
-    font-size: 13px;
+    font-size: 12px;
 }
 
+.vote-check {
+    color: #24743d;
+    font-size: 19px;
+}
 .logout-section {
     padding-top: 25px;
     display: flex;

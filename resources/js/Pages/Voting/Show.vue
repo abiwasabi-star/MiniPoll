@@ -39,29 +39,26 @@ const markPhotoFailed = (id) => {
     ]);
 };
 
-// Social links are optional. Only real URLs supplied by Laravel are displayed.
-const socialPlatforms = [
+//Decorative social media icons (not clickable for now)
+const socialIcons = [
     {
-        key: 'instagram_url',
         name: 'Instagram',
         icon: 'fa-brands fa-instagram',
     },
     {
-        key: 'facebook_url',
         name: 'Facebook',
         icon: 'fa-brands fa-facebook-f',
     },
     {
-        key: 'x_url',
         name: 'X',
         icon: 'fa-brands fa-x-twitter',
     },
     {
-        key: 'tiktok_url',
         name: 'TikTok',
         icon: 'fa-brands fa-tiktok',
     },
 ];
+
 
 const getSocialLinks = (person) => {
     return socialPlatforms.filter(platform => {
@@ -72,7 +69,7 @@ const getSocialLinks = (person) => {
     });
 };
 
-// Submits the vote to Laravel.
+//submits the vote to Laravel.
 const castVote = () => {
     form.post('/vote', {
         preserveScroll: true,
@@ -154,30 +151,24 @@ const castVote = () => {
 
 
                     <!-- SOCIAL LINKS FOR FEATURED CONTESTANT -->
-                    <div
-                        v-if="getSocialLinks(skater).length"
-                        class="featured-socials"
-                    >
-                        <span>FOLLOW THE SKATER</span>
+                     <div class="featured-socials">
+                       <span>FOLLOW THE SKATER</span>
 
-                        <a
-                            v-for="social in getSocialLinks(skater)"
-                            :key="social.key"
-                            :href="skater[social.key]"
-                            :aria-label="`Follow ${skater.name} on ${social.name}`"
-                            :title="social.name"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="social-icon"
+                     <div class="social-icons">
+                       <span
+                         v-for="social in socialIcons"
+                         :key="social.name"
+                         class="social-icon"
+                         :title="social.name"
+                         :aria-label="social.name"
                         >
-                            <i :class="social.icon"></i>
-                        </a>
-                    </div>
-
+                        <i :class="social.icon"></i>
+                       </span>
+                     </div>
+                     </div>
 
                     <!-- VOTING STATUS -->
                     <div class="voting-status">
-
                         <p
                             v-if="votingStatus === 'not_configured'"
                             class="status-message"
@@ -185,11 +176,9 @@ const castVote = () => {
                             <i class="fa-solid fa-circle-info"></i>
                             Voting has not been configured yet.
                         </p>
-
                         <p
                             v-else-if="votingStatus === 'upcoming'"
-                            class="status-message"
-                        >
+                            class="status-message">
                             <i class="fa-solid fa-clock"></i>
                             Voting has not started yet.
                         </p>
@@ -318,22 +307,15 @@ const castVote = () => {
 
                         <!-- SOCIAL ICONS -->
                         <div class="contestant-socials">
-
-                            <a
-                                v-for="social in getSocialLinks(other)"
-                                :key="social.key"
-                                :href="other[social.key]"
-                                :aria-label="`Follow ${other.name} on ${social.name}`"
-                                :title="social.name"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="social-icon"
-                            >
-                                <i :class="social.icon"></i>
-                            </a>
-
+                            <span
+                            v-for="social in socialIcons"
+                            :key="social.name"
+                            class="social-icon"
+                            :title="social.name"
+                            :aria-label="social.name">
+                            <i :class="social.icon"></i>
+                           </span>
                         </div>
-
 
                         <!-- VIEW PROFILE -->
                         <Link
@@ -541,23 +523,23 @@ const castVote = () => {
 
 
 /* FEATURED SOCIAL LINKS */
-
 .featured-socials {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 13px;
-
     margin-top: 25px;
 }
-
 .featured-socials > span {
-    width: 100%;
     color: #a18c96;
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 1.5px;
 }
+.social-icons {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    flex-wrap: wrap;}
 
 
 /* SOCIAL ICONS */

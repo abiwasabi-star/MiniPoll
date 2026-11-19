@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Vote;
 
 class ProfileController extends Controller
 {
@@ -15,6 +16,24 @@ class ProfileController extends Controller
         /** @var User $user */
              $user = Auth::user(); //gets the currently authenticated user
 
+    $votingHistory = [];
+    //fetch voting history for voters only//the logged in user
+    if (!$user->is_admin) {
+        $votingHistory = Vote::where('user_id', $user->id)
+            ->with([
+                'category:id,name',
+                'skater:id,name',
+            ])
+            ->latest() //newest votes first
+            ->get([
+                'id',
+                'user_id',
+                'category_id',
+                'skater_id',
+                'created_at',
+            ]);
+    }
+
         return Inertia::render('Profile/Index', [
             'user' => [
                 'name' => $user->name,
@@ -22,6 +41,7 @@ class ProfileController extends Controller
                 'profile_photo' => $user->profile_photo,
                 'role' => $user->is_admin ? 'ADMIN' : 'VOTER',
             ],
+            'votingHistory' => $votingHistory,
         ]);
     }
 

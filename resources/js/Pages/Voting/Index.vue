@@ -243,7 +243,7 @@ const filteredSkaterCount = computed(() => {
 
 .voting-heading h1 {
     font-family: 'Oswald', 'Arial Narrow', sans-serif;
-    font-size: clamp(48px, 7vw, 88px);
+    font-size: clamp(36px, 5vw, 64px);
     line-height: .98;
     letter-spacing: -2px;
     font-weight: 800;

@@ -14,6 +14,10 @@ Route::get('/', function () {
     return Inertia::render('Home');
 });
 
+Route::get('/session-check', function () {
+    return response()->noContent();
+});
+
 //public routes
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -23,7 +27,7 @@ Route::middleware('guest')->group(function () {
 });
 
 //private routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth',\App\Http\Middleware\PreventBackHistory::class,])->group(function () {
     Route::get('/home', [VotingController::class, 'index'])->name('home');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
@@ -34,7 +38,7 @@ Route::middleware('auth')->group(function () {
 });
 
 //admin routes //someone shud b logged in n an admin
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin',\App\Http\Middleware\PreventBackHistory::class,])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         Route::post('/skaters', [AdminController::class, 'store'])->name('skaters.store');
         Route::put('/skaters/{skater}', [AdminController::class, 'update'])->name('skaters.update');
