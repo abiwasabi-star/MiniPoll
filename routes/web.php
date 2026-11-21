@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\VotingController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 
@@ -26,6 +27,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store']);
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
+    Route::get('/forgot-password', [PasswordResetController::class, 'create'])
+    ->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'store'])
+    ->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])
+    ->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'update'])
+    ->name('password.store');
 });
 
 // Email verification routes

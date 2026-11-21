@@ -65,9 +65,9 @@ function submit() {
                     <div class="form-group">
                         <div class="password-heading">
                             <label for="password">Password</label>
-                            <a href="#" class="forgot-link">
+                            <Link href="/forgot-password" class="forgot-link">
                                 Forgot password?
-                            </a>
+                            </Link>
                         </div>
 
                         <div class="password-wrapper">
